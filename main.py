@@ -19,7 +19,7 @@ API_KEY = os.getenv("API_KEY")
 SYSTEM_PROMPT = (BASE_DIR / "system_prompt.txt").read_text(encoding="utf-8")
 DELAY_BETWEEN_REQUESTS = 60  # seconds
 FIELDNAMES = ["file_name", "page_num", "classification", "justification"]
-TIMEOUT = 300_000
+TIMEOUT = 300_000  # ms
 
 
 class PageAnalysis(BaseModel):
@@ -60,7 +60,6 @@ def send_file(client, pdf_file):
             "mime_type": "application/json",
             "schema": DocumentAnalysis.model_json_schema(),
         },
-        timeout=TIMEOUT,
     )
 
 
@@ -76,7 +75,10 @@ def write_classifications(document_analysis):
 
 
 def gemini_calls():
-    client = genai.Client(api_key=API_KEY)
+    client = genai.Client(
+        api_key=API_KEY,
+        http_options={"timeout": TIMEOUT},
+    )
     pdf_files = sorted(SLIDES_DIR.glob("*.pdf"))
     processed_files = get_processed_files()
 
