@@ -53,12 +53,12 @@ def send_file(client, pdf_file):
         f"Uploading {pdf_file.name}\n ({pdf_file.stat().st_size / (1024 * 1024):.2f} MB)"
     )
     pdf = client.files.upload(file=pdf_file)
-    print(f"File uploaded: {pdf.uri} (size: {pdf.size} bytes)")
+    print(f"File uploaded: {pdf.uri}")
     print(f"Sending {pdf_file.name} to model")
-    return client.interactions.create(
+    stream = client.interactions.create(
         model=MODEL_PDF,
         system_instruction=SYSTEM_PROMPT,
-        stream=False,
+        stream=True,
         input=[{"type": "document", "uri": pdf.uri, "mime_type": pdf.mime_type}],
         response_format={
             "type": "text",
@@ -66,6 +66,42 @@ def send_file(client, pdf_file):
             "schema": DocumentAnalysis.model_json_schema(),
         },
     )
+    response_chunks = []
+    completed = False
+    for event in stream:
+        event_type = event.event_type
+
+        if event_type == "interaction.created":
+            print(f"Interaction created: {event.interaction.id}")
+
+        elif event_type == "step.start":
+            print(f"Started step: {event.step.type}")
+
+        elif event_type == "step.delta":
+            if event.delta.type == "text":
+                text = event.delta.text
+                response_chunks.append(text)
+                print(text, end="", flush=True)
+
+        elif event_type == "step.stop":
+            print("\nStep finished.")
+
+        elif event_type == "interaction.completed":
+            completed = True
+            print("\nInteraction completed.")
+
+            usage = getattr(event.interaction, "usage", None)
+            if usage:
+                print(f"Total tokens: {usage.total_tokens}")
+                print(f"Input tokens: {usage.total_input_tokens}")
+                print(f"Output tokens: {usage.total_output_tokens}")
+                print(f"Thought tokens: {usage.total_thought_tokens}")
+
+        elif event_type == "error":
+            raise RuntimeError(f"Gemini streaming error: {event.error}")
+    if not completed:
+        raise RuntimeError("Gemini streaming did not complete successfully.")
+    return "".join(response_chunks)
 
 
 def write_classifications(document_analysis):
@@ -93,15 +129,13 @@ def gemini_calls():
             print(f"Skipping already processed file: {pdf_file.name}")
             continue
         print(f"\nProcessing: {pdf_file.name}")
-        interaction = send_file(client, pdf_file)
+        response = send_file(client, pdf_file)
         print(f"Received interaction response for {pdf_file.name}")
 
-        if interaction.output_text is None:
+        if not response:
             raise ValueError("No output text received from the model interaction.")
 
-        document_analysis = DocumentAnalysis.model_validate_json(
-            interaction.output_text
-        )
+        document_analysis = DocumentAnalysis.model_validate_json(response)
 
         if not document_analysis.pages:
             raise ValueError(f"No pages found in {pdf_file.name}.")
