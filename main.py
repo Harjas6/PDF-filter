@@ -70,6 +70,7 @@ def send_file(client, pdf_file):
     completed = False
     for event in stream:
         event_type = event.event_type
+        print(f"Received event: {event_type}")
 
         if event_type == "interaction.created":
             print(f"Interaction created: {event.interaction.id}")
