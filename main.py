@@ -36,6 +36,15 @@ class DocumentAnalysis(BaseModel):
     )
 
 
+def get_processed_files():
+    if not OUTPUT_PATH.exists() or OUTPUT_PATH.stat().st_size == 0:
+        return set()
+
+    with OUTPUT_PATH.open("r", newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        return {row["file_name"] for row in reader}
+
+
 def send_file(client, pdf_file):
     pdf = client.files.upload(file=pdf_file)
     return client.interactions.create(
@@ -65,22 +74,31 @@ def write_classifications(document_analysis):
 def gemini_calls():
     client = genai.Client(api_key=API_KEY)
     pdf_files = sorted(SLIDES_DIR.glob("*.pdf"))
+    processed_files = get_processed_files()
+
     for pdf_file in pdf_files:
+        if pdf_file.name in processed_files:
+            print(f"Skipping already processed file: {pdf_file.name}")
+            continue
+
         interaction = send_file(client, pdf_file)
 
         if interaction.output_text is None:
             raise ValueError("No output text received from the model interaction.")
+
         document_analysis = DocumentAnalysis.model_validate_json(
             interaction.output_text
         )
 
         if not document_analysis.pages:
-            raise ValueError("No pages found in the document analysis.")
-        # set file name/dont trust gemini to do it correctly
+            raise ValueError(f"No pages found in {pdf_file.name}.")
+
         for page in document_analysis.pages:
             page.file_name = pdf_file.name
 
         write_classifications(document_analysis)
+        processed_files.add(pdf_file.name)
+        # will have one extra sleep but whatever
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
 
