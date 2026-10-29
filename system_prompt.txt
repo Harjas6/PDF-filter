@@ -1,0 +1,1 @@
+Add whatever prompt you want to tell gemini how to decide what to keep.

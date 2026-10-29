@@ -1,0 +1,6 @@
+.env
+.venv
+slides/
+*_analysis.csv
+.DS_Store
+pruned_slides/
