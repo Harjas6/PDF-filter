@@ -7,7 +7,7 @@ from google import genai
 from pydantic import BaseModel, Field
 
 load_dotenv()
-SLIDES_DIR = Path(__file__).parent / "slides"
+SLIDES_DIR = Path(__file__).parent / "input_slides"
 MODEL_PDF = os.getenv("MODEL_PDF")
 API_KEY = os.getenv("API_KEY")
 SYSTEM_PROMPT = (Path(__file__).parent / "system_prompt.txt").read_text(

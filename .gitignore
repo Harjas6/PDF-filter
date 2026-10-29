@@ -1,6 +1,7 @@
 .env
 .venv/
-slides/
+input_slides/*
+!input_slides/test_slides.pdf
 *_analysis.csv
 .DS_Store
 pruned_slides/
