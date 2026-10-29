@@ -1,6 +1,8 @@
 .env
-.venv
+.venv/
 slides/
 *_analysis.csv
 .DS_Store
 pruned_slides/
+__pycache__/
+*.py[cod]
