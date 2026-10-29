@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from google import genai
 from pydantic import BaseModel, Field
 
+from prune import create_pruned_pdfs
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).parent
@@ -78,6 +80,7 @@ def gemini_calls():
 
     for pdf_file in pdf_files:
         if pdf_file.name in processed_files:
+            # if crash midway file will still count as processed so keep in mind
             print(f"Skipping already processed file: {pdf_file.name}")
             continue
 
@@ -106,3 +109,4 @@ if __name__ == "__main__":
     # uncomment to start fresh each run
     # OUTPUT_PATH.unlink(missing_ok=True)
     gemini_calls()
+    create_pruned_pdfs()

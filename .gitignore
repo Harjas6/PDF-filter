@@ -2,8 +2,10 @@
 .venv/
 input_slides/*
 !input_slides/test_slides.pdf
-*_analysis.csv
+slide_classification.csv
+test_slides_analysis.csv
 .DS_Store
-pruned_slides/
+pruned_slides/*
+!pruned_slides/test_slides.pdf
 __pycache__/
 *.py[cod]
