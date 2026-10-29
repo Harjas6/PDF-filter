@@ -5,6 +5,6 @@ input_slides/*
 slide_classification.csv
 .DS_Store
 pruned_slides/*
-!pruned_slides/test_slides.pdf
+!pruned_slides/test_slides_pruned.pdf
 __pycache__/
 *.py[cod]
