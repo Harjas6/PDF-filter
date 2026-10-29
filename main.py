@@ -19,6 +19,7 @@ API_KEY = os.getenv("API_KEY")
 SYSTEM_PROMPT = (BASE_DIR / "system_prompt.txt").read_text(encoding="utf-8")
 DELAY_BETWEEN_REQUESTS = 60  # seconds
 FIELDNAMES = ["file_name", "page_num", "classification", "justification"]
+TIMEOUT = 300_000
 
 
 class PageAnalysis(BaseModel):
@@ -59,6 +60,7 @@ def send_file(client, pdf_file):
             "mime_type": "application/json",
             "schema": DocumentAnalysis.model_json_schema(),
         },
+        timeout=TIMEOUT,
     )
 
 
