@@ -49,7 +49,12 @@ def get_processed_files():
 
 
 def send_file(client, pdf_file):
+    print(
+        f"Uploading {pdf_file.name}\n ({pdf_file.stat().st_size / (1024 * 1024):.2f} MB)"
+    )
     pdf = client.files.upload(file=pdf_file)
+    print(f"File uploaded: {pdf.uri} (size: {pdf.size} bytes)")
+    print(f"Sending {pdf_file.name} to model")
     return client.interactions.create(
         model=MODEL_PDF,
         system_instruction=SYSTEM_PROMPT,
@@ -87,8 +92,9 @@ def gemini_calls():
             # if crash midway file will still count as processed so keep in mind
             print(f"Skipping already processed file: {pdf_file.name}")
             continue
-
+        print(f"\nProcessing: {pdf_file.name}")
         interaction = send_file(client, pdf_file)
+        print(f"Received interaction response for {pdf_file.name}")
 
         if interaction.output_text is None:
             raise ValueError("No output text received from the model interaction.")
@@ -100,13 +106,16 @@ def gemini_calls():
         if not document_analysis.pages:
             raise ValueError(f"No pages found in {pdf_file.name}.")
 
+        print(f"Received {len(document_analysis.pages)} page classifications")
         for page in document_analysis.pages:
             page.file_name = pdf_file.name
 
         write_classifications(document_analysis)
         processed_files.add(pdf_file.name)
         # will have one extra sleep but whatever
+        print(f"Sleeping for {DELAY_BETWEEN_REQUESTS} seconds before next request...")
         time.sleep(DELAY_BETWEEN_REQUESTS)
+        print("Finished processing waiting, starting next request...\n")
 
 
 if __name__ == "__main__":
