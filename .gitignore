@@ -3,7 +3,6 @@
 input_slides/*
 !input_slides/test_slides.pdf
 slide_classification.csv
-test_slides_analysis.csv
 .DS_Store
 pruned_slides/*
 !pruned_slides/test_slides.pdf
