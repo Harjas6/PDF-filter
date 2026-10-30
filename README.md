@@ -15,7 +15,7 @@ I used it on lecture slides up to 200 pages long, on the free tier of `gemini-3.
 2. Add your API key from [Google AI Studio](https://aistudio.google.com/apikey) and a model name to a `.env` file:
 
    ```
-   GEMINI_API_KEY=your_key_here
+   API_KEY=your_key_here
    MODEL_PDF=gemini-3.8-flash
    ```
 
