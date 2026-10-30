@@ -6,7 +6,12 @@ I used it on lecture slides up to 200 pages long, on the free tier of `gemini-3.
 
 ## Setup
 
-1. Install dependencies: `pip install -r requirements.txt`
+1. Create a virtual environment and install dependencies:
+
+   ```bash
+   python3 -m venv .venv && source .venv/bin/activate && python -m pip install -r requirements.txt
+   ```
+
 2. Add your API key from [Google AI Studio](https://aistudio.google.com/apikey) and a model name to a `.env` file:
 
    ```
