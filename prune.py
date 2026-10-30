@@ -58,7 +58,13 @@ def create_pruned_pdfs():
                     to_page=page_index,
                 )
 
-            output.save(output_path)
+            output.save(
+                output_path,
+                garbage=4,
+                deflate=True,
+                deflate_images=True,
+                deflate_fonts=True,
+            )
 
         shutil.move(str(input_path), str(ARCHIVE_DIR / file_name))
         print(f"Created: {output_path}")
