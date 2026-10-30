@@ -8,3 +8,5 @@ pruned_slides/*
 !pruned_slides/test_slides_pruned.pdf
 __pycache__/
 *.py[cod]
+archived_slides/*
+!archived_slides/test_slides.pdf

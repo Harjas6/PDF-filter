@@ -1,4 +1,5 @@
 import csv
+import shutil
 from pathlib import Path
 
 import pymupdf
@@ -6,6 +7,7 @@ import pymupdf
 BASE_DIR = Path(__file__).parent
 INPUT_DIR = BASE_DIR / "input_slides"
 OUTPUT_DIR = BASE_DIR / "pruned_slides"
+ARCHIVE_DIR = BASE_DIR / "archived_slides"
 CSV_PATH = BASE_DIR / "slide_classification.csv"
 
 
@@ -27,6 +29,7 @@ def read_classifications():
 
 def create_pruned_pdfs():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
     pages_to_keep = read_classifications()
 
     for file_name, page_numbers in pages_to_keep.items():
@@ -54,6 +57,8 @@ def create_pruned_pdfs():
                 )
 
             output.save(output_path)
+
+        shutil.move(str(input_path), str(ARCHIVE_DIR / file_name))
 
         print(f"Created: {output_path}")
 
