@@ -10,3 +10,4 @@ __pycache__/
 *.py[cod]
 archived_slides/*
 !archived_slides/test_slides.pdf
+archived_classification.csv

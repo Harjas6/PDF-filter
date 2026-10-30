@@ -9,6 +9,8 @@ INPUT_DIR = BASE_DIR / "input_slides"
 OUTPUT_DIR = BASE_DIR / "pruned_slides"
 ARCHIVE_DIR = BASE_DIR / "archived_slides"
 CSV_PATH = BASE_DIR / "slide_classification.csv"
+ARCHIVE_CSV_PATH = BASE_DIR / "archived_classifications.csv"
+FIELDNAMES = ["file_name", "page_num", "classification", "justification"]
 
 
 def read_classifications():
@@ -59,8 +61,32 @@ def create_pruned_pdfs():
             output.save(output_path)
 
         shutil.move(str(input_path), str(ARCHIVE_DIR / file_name))
-
         print(f"Created: {output_path}")
+    archive_classifications()
+
+
+def archive_classifications():
+    if not CSV_PATH.exists():
+        return
+
+    file_is_empty = (
+        not ARCHIVE_CSV_PATH.exists() or ARCHIVE_CSV_PATH.stat().st_size == 0
+    )
+
+    with CSV_PATH.open("r", newline="", encoding="utf-8") as source:
+        reader = csv.DictReader(source)
+        rows = list(reader)
+
+    with ARCHIVE_CSV_PATH.open("a", newline="", encoding="utf-8") as archive:
+        writer = csv.DictWriter(archive, fieldnames=FIELDNAMES)
+
+        if file_is_empty:
+            writer.writeheader()
+
+        writer.writerows(rows)
+
+    CSV_PATH.unlink()
+    print("Classifications archived and original CSV deleted.")
 
 
 if __name__ == "__main__":
